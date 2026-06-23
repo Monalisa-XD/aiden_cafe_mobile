@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -31,7 +32,6 @@ class _LoginScreenState extends State<LoginScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-
               // Top Banner Image
               Container(
                 height: 260,
@@ -45,7 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 child: Container(
-                  color: Colors.black.withOpacity(0.45),
+                  color: Colors.black.withValues(alpha: 0.45),
                   padding: const EdgeInsets.all(24),
                   alignment: Alignment.bottomLeft,
                   child: const Column(
@@ -92,7 +92,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-
                       const Text(
                         "Welcome Back",
                         style: TextStyle(
@@ -105,9 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                       const Text(
                         "Enter your credentials to access the Restaurant dashboard.",
-                        style: TextStyle(
-                          color: Colors.grey,
-                        ),
+                        style: TextStyle(color: Colors.grey),
                       ),
 
                       const SizedBox(height: 30),
@@ -185,9 +182,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           onPressed: () {},
                           child: const Text(
                             "Forgot Password?",
-                            style: TextStyle(
-                              color: Color(0xFFB8860B),
-                            ),
+                            style: TextStyle(color: Color(0xFFB8860B)),
                           ),
                         ),
                       ),
@@ -229,7 +224,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
                       Center(
                         child: TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const RegisterScreen(),
+                              ),
+                            );
+                          },
                           child: const Text(
                             "Register Your Restaurant",
                             style: TextStyle(
