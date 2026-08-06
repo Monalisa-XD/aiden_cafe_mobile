@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'auth/login_screen.dart';
+import 'south_kitchen/south_kitchen_screen.dart';
 
 class LandingHomepageScreen extends StatefulWidget {
   const LandingHomepageScreen({super.key});
@@ -88,7 +90,7 @@ class LandingHomepageScreenState extends State<LandingHomepageScreen> {
           Positioned(
             bottom: 24,
             right: 24,
-            child: _buildFloatingStatusBadge(),
+            child: _buildFloatingStatusBadge(context),
           ),
         ],
       ),
@@ -239,17 +241,20 @@ class LandingHomepageScreenState extends State<LandingHomepageScreen> {
       height: 380,
       width: double.infinity,
       decoration: BoxDecoration(
+        color: const Color(0xFF161C24),
         borderRadius: BorderRadius.circular(4),
         border: Border.all(color: _surfaceBorder, width: 1),
-        image: const DecorationImage(
-          image: NetworkImage(
-            "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=1200&q=80",
-          ),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(4),
+        child: Image.network(
+          "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=1200&q=80",
           fit: BoxFit.cover,
-          colorFilter: ColorFilter.mode(
-            Color(0x55000000),
-            BlendMode.darken,
-          ),
+          colorBlendMode: BlendMode.darken,
+          color: Colors.black.withValues(alpha: 0.35),
+          errorBuilder: (context, error, stackTrace) {
+            return Container(color: const Color(0xFF161C24));
+          },
         ),
       ),
     );
@@ -830,55 +835,66 @@ class LandingHomepageScreenState extends State<LandingHomepageScreen> {
   // ==========================================
   // FLOATING STATUS BADGE (BOTTOM RIGHT)
   // ==========================================
-  Widget _buildFloatingStatusBadge() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: _greenBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _greenBorder, width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.5),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
+  Widget _buildFloatingStatusBadge(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const SouthKitchenScreen(),
           ),
-        ],
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(
-            Icons.restaurant_rounded,
-            color: _greenText,
-            size: 20,
-          ),
-          const SizedBox(width: 12),
-          const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                "NOW OPEN",
-                style: TextStyle(
-                  color: _greenText,
-                  fontSize: 9,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 1.2,
+        );
+      },
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: _greenBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: _greenBorder, width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.5),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.restaurant_rounded,
+              color: _greenText,
+              size: 20,
+            ),
+            const SizedBox(width: 12),
+            const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "NOW OPEN",
+                  style: TextStyle(
+                    color: _greenText,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.2,
+                  ),
                 ),
-              ),
-              SizedBox(height: 2),
-              Text(
-                "South Kitchen",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
+                SizedBox(height: 2),
+                Text(
+                  "South Kitchen",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -901,17 +917,20 @@ class LandingHomepageScreenState extends State<LandingHomepageScreen> {
                   child: Container(
                     height: 480,
                     decoration: BoxDecoration(
+                      color: const Color(0xFF161C24),
                       borderRadius: BorderRadius.circular(4),
                       border: Border.all(color: _surfaceBorder, width: 1),
-                      image: const DecorationImage(
-                        image: NetworkImage(
-                          "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=1200&q=80",
-                        ),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: Image.network(
+                        "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=1200&q=80",
                         fit: BoxFit.cover,
-                        colorFilter: ColorFilter.mode(
-                          Color(0x44000000),
-                          BlendMode.darken,
-                        ),
+                        colorBlendMode: BlendMode.darken,
+                        color: Colors.black.withValues(alpha: 0.3),
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(color: const Color(0xFF161C24));
+                        },
                       ),
                     ),
                   ),
@@ -973,17 +992,20 @@ class LandingHomepageScreenState extends State<LandingHomepageScreen> {
                   height: 320,
                   width: double.infinity,
                   decoration: BoxDecoration(
+                    color: const Color(0xFF161C24),
                     borderRadius: BorderRadius.circular(4),
                     border: Border.all(color: _surfaceBorder, width: 1),
-                    image: const DecorationImage(
-                      image: NetworkImage(
-                        "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=1200&q=80",
-                      ),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: Image.network(
+                      "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=1200&q=80",
                       fit: BoxFit.cover,
-                      colorFilter: ColorFilter.mode(
-                        Color(0x44000000),
-                        BlendMode.darken,
-                      ),
+                      colorBlendMode: BlendMode.darken,
+                      color: Colors.black.withValues(alpha: 0.3),
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(color: const Color(0xFF161C24));
+                      },
                     ),
                   ),
                 ),
@@ -1399,7 +1421,14 @@ class _HeaderNavBarState extends State<_HeaderNavBar> {
                 Row(
                   children: [
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const LoginScreen(),
+                          ),
+                        );
+                      },
                       child: const Text(
                         "SIGN IN",
                         style: TextStyle(
@@ -1501,6 +1530,12 @@ class _HeaderNavBarState extends State<_HeaderNavBar> {
                     color: Colors.white,
                     onTap: () {
                       setState(() => _isMenuOpen = false);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const LoginScreen(),
+                        ),
+                      );
                     },
                   ),
                   const SizedBox(height: 16),

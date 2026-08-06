@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'landing_homepage_screen.dart';
 import 'auth/login_screen.dart';
+import 'features_screen.dart';
+import 'pricing_screen.dart';
+import 'demo_booking_screen.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -14,33 +17,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   final List<Widget> _screens = [
     const LandingHomepageScreen(),
-    const Scaffold(
-      backgroundColor: Color(0xFF070A0F),
-      body: Center(
-        child: Text(
-          "Features coming soon...",
-          style: TextStyle(color: Color(0xFF94A3B8), fontSize: 16),
-        ),
-      ),
-    ),
-    const Scaffold(
-      backgroundColor: Color(0xFF070A0F),
-      body: Center(
-        child: Text(
-          "Pricing coming soon...",
-          style: TextStyle(color: Color(0xFF94A3B8), fontSize: 16),
-        ),
-      ),
-    ),
-    const Scaffold(
-      backgroundColor: Color(0xFF070A0F),
-      body: Center(
-        child: Text(
-          "Demo booking coming soon...",
-          style: TextStyle(color: Color(0xFF94A3B8), fontSize: 16),
-        ),
-      ),
-    ),
+    const FeaturesScreen(),
+    const PricingScreen(),
+    const DemoBookingScreen(),
     const LoginScreen(), // Account / Sign In
   ];
 
