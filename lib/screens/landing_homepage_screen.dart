@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'auth/login_screen.dart';
+import 'auth/register_screen.dart';
 import 'south_kitchen/south_kitchen_screen.dart';
+import 'demo_booking_screen.dart';
 
 class LandingHomepageScreen extends StatefulWidget {
   const LandingHomepageScreen({super.key});
@@ -186,7 +188,12 @@ class LandingHomepageScreenState extends State<LandingHomepageScreen> {
           runSpacing: 16,
           children: [
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const RegisterScreen()),
+                );
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: _goldPrimary,
                 foregroundColor: Colors.black,
@@ -209,7 +216,12 @@ class LandingHomepageScreenState extends State<LandingHomepageScreen> {
               ),
             ),
             OutlinedButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SouthKitchenScreen()),
+                );
+              },
               style: OutlinedButton.styleFrom(
                 foregroundColor: Colors.white,
                 side: const BorderSide(color: _surfaceBorder, width: 1.5),
@@ -600,7 +612,12 @@ class LandingHomepageScreenState extends State<LandingHomepageScreen> {
           SizedBox(
             width: double.infinity,
             child: OutlinedButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const RegisterScreen()),
+                );
+              },
               style: OutlinedButton.styleFrom(
                 foregroundColor: Colors.white,
                 side: const BorderSide(color: _surfaceBorder, width: 1.5),
@@ -687,7 +704,12 @@ class LandingHomepageScreenState extends State<LandingHomepageScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const RegisterScreen()),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _goldPrimary,
                     foregroundColor: Colors.black,
@@ -789,7 +811,12 @@ class LandingHomepageScreenState extends State<LandingHomepageScreen> {
           SizedBox(
             width: double.infinity,
             child: OutlinedButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const DemoBookingScreen()),
+                );
+              },
               style: OutlinedButton.styleFrom(
                 foregroundColor: Colors.white,
                 side: const BorderSide(color: _surfaceBorder, width: 1.5),
@@ -1441,7 +1468,12 @@ class _HeaderNavBarState extends State<_HeaderNavBar> {
                     ),
                     const SizedBox(width: 12),
                     ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const RegisterScreen()),
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFE5A93C),
                         foregroundColor: Colors.black,
@@ -1544,6 +1576,12 @@ class _HeaderNavBarState extends State<_HeaderNavBar> {
                     child: ElevatedButton(
                       onPressed: () {
                         setState(() => _isMenuOpen = false);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const RegisterScreen(),
+                          ),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFE5A93C),

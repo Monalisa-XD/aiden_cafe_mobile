@@ -1,9 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/app_state_provider.dart';
 import '../../widgets/shared/footer.dart';
 import '../../services/api_service.dart';
-import '../../main.dart'; // import the themeModeNotifier
 import '../auth/login_screen.dart';
+
 final ValueNotifier<List<Map<String, dynamic>>> cartNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
 
 class SouthKitchenScreen extends StatefulWidget {
@@ -349,10 +352,7 @@ class _SouthKitchenScreenState extends State<SouthKitchenScreen> {
                 const SizedBox(width: 24),
                 IconButton(
                   onPressed: () {
-                    // Toggle themeModeNotifier value dynamically
-                    themeModeNotifier.value = themeModeNotifier.value == ThemeMode.dark 
-                        ? ThemeMode.light 
-                        : ThemeMode.dark;
+                    context.read<AppStateProvider>().toggleTheme();
                   },
                   icon: const Icon(
                     Icons.wb_sunny_outlined,
@@ -375,7 +375,12 @@ class _SouthKitchenScreenState extends State<SouthKitchenScreen> {
                 ),
                 const SizedBox(width: 16),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const LoginScreen()),
+                    );
+                  },
                   child: const Text(
                     "SIGN IN",
                     style: TextStyle(
@@ -388,7 +393,11 @@ class _SouthKitchenScreenState extends State<SouthKitchenScreen> {
                 ),
                 const SizedBox(width: 12),
                 OutlinedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    setState(() {
+                      _showCart = true;
+                    });
+                  },
                   style: OutlinedButton.styleFrom(
                     foregroundColor: _goldPrimary,
                     side: const BorderSide(color: _goldPrimary, width: 1.5),
@@ -419,10 +428,7 @@ class _SouthKitchenScreenState extends State<SouthKitchenScreen> {
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
                   onPressed: () {
-                    // Toggle themeModeNotifier value dynamically
-                    themeModeNotifier.value = themeModeNotifier.value == ThemeMode.dark 
-                        ? ThemeMode.light 
-                        : ThemeMode.dark;
+                    context.read<AppStateProvider>().toggleTheme();
                   },
                   icon: Icon(
                     Icons.wb_sunny_outlined,
@@ -538,7 +544,15 @@ class _SouthKitchenScreenState extends State<SouthKitchenScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                if (_locationsSectionKey.currentContext != null) {
+                  Scrollable.ensureVisible(
+                    _locationsSectionKey.currentContext!,
+                    duration: const Duration(milliseconds: 700),
+                    curve: Curves.easeInOutCubic,
+                  );
+                }
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: _goldPrimary,
                 foregroundColor: Colors.black,
@@ -567,7 +581,15 @@ class _SouthKitchenScreenState extends State<SouthKitchenScreen> {
             ),
             const SizedBox(width: 16),
             OutlinedButton(
-              onPressed: () {},
+              onPressed: () {
+                if (_locationsSectionKey.currentContext != null) {
+                  Scrollable.ensureVisible(
+                    _locationsSectionKey.currentContext!,
+                    duration: const Duration(milliseconds: 700),
+                    curve: Curves.easeInOutCubic,
+                  );
+                }
+              },
               style: OutlinedButton.styleFrom(
                 foregroundColor: Colors.white,
                 side: BorderSide(
@@ -646,7 +668,11 @@ class _SouthKitchenScreenState extends State<SouthKitchenScreen> {
           children: [
             Expanded(
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  setState(() {
+                    _showCart = true;
+                  });
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _goldPrimary,
                   foregroundColor: Colors.black,
@@ -676,7 +702,15 @@ class _SouthKitchenScreenState extends State<SouthKitchenScreen> {
             const SizedBox(width: 16),
             Expanded(
               child: OutlinedButton(
-                onPressed: () {},
+                onPressed: () {
+                  if (_locationsSectionKey.currentContext != null) {
+                    Scrollable.ensureVisible(
+                      _locationsSectionKey.currentContext!,
+                      duration: const Duration(milliseconds: 700),
+                      curve: Curves.easeInOutCubic,
+                    );
+                  }
+                },
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Colors.white,
                   side: BorderSide(
@@ -804,7 +838,11 @@ class _SouthKitchenScreenState extends State<SouthKitchenScreen> {
         ),
         const SizedBox(height: 32),
         OutlinedButton(
-          onPressed: () {},
+          onPressed: () {
+            setState(() {
+              _showCart = true;
+            });
+          },
           style: OutlinedButton.styleFrom(
             foregroundColor: Colors.white,
             side: BorderSide(
@@ -1031,7 +1069,11 @@ class _SouthKitchenScreenState extends State<SouthKitchenScreen> {
           // Centered View Full Menu Button
           Center(
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                setState(() {
+                  _showCart = true;
+                });
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: _goldPrimary,
                 foregroundColor: const Color(0xFF070A0F),
@@ -1386,7 +1428,15 @@ class _SouthKitchenScreenState extends State<SouthKitchenScreen> {
 
                     // Find all locations button
                     ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        if (_locationsSectionKey.currentContext != null) {
+                          Scrollable.ensureVisible(
+                            _locationsSectionKey.currentContext!,
+                            duration: const Duration(milliseconds: 700),
+                            curve: Curves.easeInOutCubic,
+                          );
+                        }
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _goldPrimary,
                         foregroundColor: const Color(0xFF070A0F),
@@ -1849,7 +1899,11 @@ class _SouthKitchenScreenState extends State<SouthKitchenScreen> {
 
                 // CTA Button
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    setState(() {
+                      _showCart = true;
+                    });
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _goldPrimary,
                     foregroundColor: const Color(0xFF070A0F),
@@ -2140,9 +2194,7 @@ class _SouthKitchenDrawerState extends State<SouthKitchenDrawer> {
                     children: [
                       IconButton(
                         onPressed: () {
-                          themeModeNotifier.value = themeModeNotifier.value == ThemeMode.dark 
-                              ? ThemeMode.light 
-                              : ThemeMode.dark;
+                          context.read<AppStateProvider>().toggleTheme();
                         },
                         icon: const Icon(
                           Icons.wb_sunny_outlined,
@@ -2307,24 +2359,55 @@ class _SouthKitchenDrawerState extends State<SouthKitchenDrawer> {
                     const Divider(color: Color(0xFF161C28), height: 1),
                     const SizedBox(height: 24),
 
-                    // SIGN IN
-                    InkWell(
-                      onTap: () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const LoginScreen()),
+                    // SIGN IN or LOGOUT
+                    Consumer<AuthProvider>(
+                      builder: (context, auth, child) {
+                        if (auth.isAuthenticated) {
+                          return InkWell(
+                            onTap: () async {
+                              await auth.logout();
+                              if (!context.mounted) return;
+                              Navigator.pop(context);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text("Logged out successfully")),
+                              );
+                            },
+                            child: Row(
+                              children: [
+                                const Icon(Icons.logout, color: Colors.white, size: 18),
+                                const SizedBox(width: 8),
+                                Text(
+                                  "LOGOUT (${auth.user?['name'] ?? ''})",
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1.2,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+                        return InkWell(
+                          onTap: () {
+                            Navigator.pop(context);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const LoginScreen()),
+                            );
+                          },
+                          child: const Text(
+                            "SIGN IN",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
                         );
                       },
-                      child: const Text(
-                        "SIGN IN",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.2,
-                        ),
-                      ),
                     ),
                     const SizedBox(height: 24),
                   ],
@@ -2680,6 +2763,45 @@ class _MenusScreenState extends State<MenusScreen> {
   bool _showCart = false;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  List<MenuItemData> _menuItems = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMenuData();
+  }
+
+  Future<void> _loadMenuData() async {
+    try {
+      final data = await ApiService.getMenuItems();
+      if (mounted) {
+        setState(() {
+          _menuItems = data.map((item) => MenuItemData(
+                id: item['id'] ?? '',
+                category: item['category'] ?? '',
+                name: item['name'] ?? '',
+                description: item['description'] ?? '',
+                image: item['image'] ?? '',
+                price: 50.0,
+                isVeg: true,
+              )).toList();
+          if (_menuItems.isEmpty) {
+            _menuItems = _staticMenuItems;
+          }
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _menuItems = _staticMenuItems;
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
   final List<String> _categories = [
     'ALL',
     'SOUTH INDIAN BREAKFAST',
@@ -3006,11 +3128,18 @@ class _MenusScreenState extends State<MenusScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        backgroundColor: Color(0xFF0F141C),
+        body: Center(child: CircularProgressIndicator(color: _goldPrimary)),
+      );
+    }
+
     final Map<String, List<MenuItemData>> categorizedItems = {
-      'South Indian Breakfast': _staticMenuItems.where((i) => i.category == 'SOUTH INDIAN BREAKFAST').toList(),
-      'Bhaths': _staticMenuItems.where((i) => i.category == 'BHATHS').toList(),
-      'Sweets': _staticMenuItems.where((i) => i.category == 'SWEETS').toList(),
-      'Beverages': _staticMenuItems.where((i) => i.category == 'BEVERAGES').toList(),
+      'South Indian Breakfast': _menuItems.where((i) => i.category == 'SOUTH INDIAN BREAKFAST').toList(),
+      'Bhaths': _menuItems.where((i) => i.category == 'BHATHS').toList(),
+      'Sweets': _menuItems.where((i) => i.category == 'SWEETS').toList(),
+      'Beverages': _menuItems.where((i) => i.category == 'BEVERAGES').toList(),
     };
 
     return Scaffold(
@@ -3052,9 +3181,7 @@ class _MenusScreenState extends State<MenusScreen> {
         actions: [
           IconButton(
             onPressed: () {
-              themeModeNotifier.value = themeModeNotifier.value == ThemeMode.dark 
-                  ? ThemeMode.light 
-                  : ThemeMode.dark;
+              context.read<AppStateProvider>().toggleTheme();
             },
             icon: const Icon(Icons.wb_sunny_outlined, color: Colors.white),
           ),
@@ -3176,7 +3303,11 @@ class _MenusScreenState extends State<MenusScreen> {
                               ),
                               const SizedBox(height: 8),
                               OutlinedButton.icon(
-                                onPressed: () {},
+                                onPressed: () {
+                                  setState(() {
+                                    _showCart = true;
+                                  });
+                                },
                                 icon: const Icon(Icons.calendar_today_outlined, size: 14, color: _goldPrimary),
                                 label: const Text(
                                   "BOOK A TABLE",

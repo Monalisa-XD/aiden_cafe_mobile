@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../../screens/south_kitchen/south_kitchen_screen.dart';
+import '../../screens/auth/login_screen.dart';
+import '../../screens/content_screen.dart';
 
 class MainFooter extends StatelessWidget {
   final String brandName;
@@ -46,7 +50,7 @@ class MainFooter extends StatelessWidget {
                             const SizedBox(width: 48),
                             Expanded(
                               flex: 5,
-                              child: _buildMailingListInput(),
+                              child: _buildMailingListInput(context),
                             ),
                           ],
                         )
@@ -55,7 +59,7 @@ class MainFooter extends StatelessWidget {
                           children: [
                             _buildMailingListText(),
                             const SizedBox(height: 32),
-                            _buildMailingListInput(),
+                            _buildMailingListInput(context),
                           ],
                         ),
                 ),
@@ -97,18 +101,21 @@ class MainFooter extends StatelessWidget {
                                     children: [
                                       Expanded(
                                         child: _buildLinksCol(
+                                          context: context,
                                           title: "VISIT US",
                                           links: ["Locations", "Our Story", "Catering", "Gift Cards"],
                                         ),
                                       ),
                                       Expanded(
                                         child: _buildLinksCol(
+                                          context: context,
                                           title: "EXPLORE",
                                           links: ["Menu", "Blog", "Careers", "Contact Us"],
                                         ),
                                       ),
                                       Expanded(
                                         child: _buildLinksCol(
+                                          context: context,
                                           title: "LEGAL",
                                           links: ["Privacy Policy", "Terms of Use", "Feedback", "Admin"],
                                         ),
@@ -124,16 +131,19 @@ class MainFooter extends StatelessWidget {
                                 _buildBrandCol(),
                                 const SizedBox(height: 48),
                                 _buildLinksCol(
+                                  context: context,
                                   title: "VISIT US",
                                   links: ["Locations", "Our Story", "Catering", "Gift Cards"],
                                 ),
                                 const SizedBox(height: 32),
                                 _buildLinksCol(
+                                  context: context,
                                   title: "EXPLORE",
                                   links: ["Menu", "Blog", "Careers", "Contact Us"],
                                 ),
                                 const SizedBox(height: 32),
                                 _buildLinksCol(
+                                  context: context,
                                   title: "LEGAL",
                                   links: ["Privacy Policy", "Terms of Use", "Feedback", "Admin"],
                                 ),
@@ -212,7 +222,7 @@ class MainFooter extends StatelessWidget {
   }
 
   // --- MAILING LIST INPUT FIELD + BUTTON ---
-  Widget _buildMailingListInput() {
+  Widget _buildMailingListInput(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -242,7 +252,11 @@ class MainFooter extends StatelessWidget {
         SizedBox(
           height: 52,
           child: ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Subscribed!')),
+              );
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: _goldPrimary,
               foregroundColor: const Color(0xFF070A0F),
@@ -318,13 +332,13 @@ class MainFooter extends StatelessWidget {
         // Social Media Buttons Row
         Row(
           children: [
-            _buildSocialButton(Icons.facebook_outlined),
+            _buildSocialButton(Icons.facebook_outlined, "https://facebook.com/placeholder"),
             const SizedBox(width: 10),
-            _buildSocialButton(Icons.camera_alt_outlined), // Instagram rep
+            _buildSocialButton(Icons.camera_alt_outlined, "https://instagram.com/placeholder"), // Instagram rep
             const SizedBox(width: 10),
-            _buildSocialButton(Icons.play_circle_outline_rounded), // YouTube rep
+            _buildSocialButton(Icons.play_circle_outline_rounded, "https://youtube.com/placeholder"), // YouTube rep
             const SizedBox(width: 10),
-            _buildSocialButton(Icons.close_rounded), // X / Twitter rep
+            _buildSocialButton(Icons.close_rounded, "https://x.com/placeholder"), // X / Twitter rep
           ],
         ),
       ],
@@ -332,9 +346,14 @@ class MainFooter extends StatelessWidget {
   }
 
   // --- SOCIAL BUTTON CONTAINER ---
-  Widget _buildSocialButton(IconData icon) {
+  Widget _buildSocialButton(IconData icon, String url) {
     return InkWell(
-      onTap: () {},
+      onTap: () async {
+        final uri = Uri.parse(url);
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri);
+        }
+      },
       borderRadius: BorderRadius.circular(8),
       child: Container(
         width: 40,
@@ -357,8 +376,48 @@ class MainFooter extends StatelessWidget {
     );
   }
 
+  void _handleNavigation(BuildContext context, String link) {
+    Widget? destination;
+    switch (link) {
+      case "Locations":
+        destination = const LocationsScreen();
+        break;
+      case "Catering":
+        destination = const CateringScreen();
+        break;
+      case "Gift Cards":
+        destination = const GiftCardsScreen();
+        break;
+      case "Menu":
+        destination = const MenusScreen();
+        break;
+      case "Blog":
+        destination = const BlogScreen();
+        break;
+      case "Admin":
+        destination = const LoginScreen();
+        break;
+      case "Our Story":
+      case "Careers":
+      case "Contact Us":
+      case "Privacy Policy":
+      case "Terms of Use":
+      case "Feedback":
+        destination = ContentScreen(title: link);
+        break;
+    }
+    
+    if (destination != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => destination!),
+      );
+    }
+  }
+
   // --- LINKS COLUMN ---
   Widget _buildLinksCol({
+    required BuildContext context,
     required String title,
     required List<String> links,
   }) {
@@ -379,7 +438,9 @@ class MainFooter extends StatelessWidget {
           return Padding(
             padding: const EdgeInsets.only(bottom: 12.0),
             child: InkWell(
-              onTap: () {},
+              onTap: () {
+                _handleNavigation(context, link);
+              },
               child: Text(
                 link,
                 style: const TextStyle(

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../services/api_service.dart';
+import '../../providers/auth_provider.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -212,12 +214,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     Navigator.pop(context);
 
                                     if (result['success'] == true) {
+                                      await context.read<AuthProvider>().login(result['token'], result['user']);
+                                      if (!context.mounted) return;
+
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(
                                           content: Text("Establishment ${nameController.text} Registered!"),
                                         ),
                                       );
-                                      Navigator.pop(context);
+                                      Navigator.popUntil(context, (route) => route.isFirst);
                                     } else {
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(
