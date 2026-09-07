@@ -2,7 +2,7 @@ import db from '../database/db.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
-const SECRET_KEY = process.env.JWT_SECRET || '[REMOVED]';
+const SECRET_KEY = process.env.JWT_SECRET;
 
 export const register = (req, res) => {
   const { name, email, password, role } = req.body;
