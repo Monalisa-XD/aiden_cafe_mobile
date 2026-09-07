@@ -29,7 +29,7 @@ To run the container connected to a production MySQL database instance, inject t
 |---|---|---|
 | `MYSQL_HOST` | MySQL hostname | `db.aidencafe.com` |
 | `MYSQL_USER` | Database username | `admin` |
-| `MYSQL_PASSWORD`| Database password | `securepass123` |
+| `MYSQL_PASSWORD`| Database password | `your_database_password` |
 | `MYSQL_DATABASE`| Database name | `aiden_cafe` |
 | `MYSQL_PORT` | Database connection port | `3306` |
 | `MYSQL_SSL` | Enable SSL encryption (`true`/`false`) | `true` |
@@ -39,7 +39,7 @@ To run the container connected to a production MySQL database instance, inject t
 docker run -d -p 5000:5000 \
   -e MYSQL_HOST="db.aidencafe.com" \
   -e MYSQL_USER="admin" \
-  -e MYSQL_PASSWORD="securepass123" \
+  -e MYSQL_PASSWORD="your_database_password" \
   -e MYSQL_DATABASE="aiden_cafe" \
   -e MYSQL_PORT="3306" \
   -e MYSQL_SSL="true" \
