@@ -3,6 +3,9 @@ import 'auth/login_screen.dart';
 import 'auth/register_screen.dart';
 import 'south_kitchen/south_kitchen_screen.dart';
 import 'demo_booking_screen.dart';
+import 'features_screen.dart';
+import 'pricing_screen.dart';
+import 'content_screen.dart';
 
 class LandingHomepageScreen extends StatefulWidget {
   const LandingHomepageScreen({super.key});
@@ -16,6 +19,13 @@ class LandingHomepageScreenState extends State<LandingHomepageScreen> {
   final GlobalKey _portfolioKey = GlobalKey();
   final GlobalKey _featuresKey = GlobalKey();
   final GlobalKey _pricingKey = GlobalKey();
+  final TextEditingController _newsletterEmailController = TextEditingController();
+
+  @override
+  void dispose() {
+    _newsletterEmailController.dispose();
+    super.dispose();
+  }
 
   // Color Palette from Screenshots
   static const Color _bgDark = Color(0xFF070A0F);
@@ -82,7 +92,7 @@ class LandingHomepageScreenState extends State<LandingHomepageScreen> {
                   _buildTestimonialsSection(context),
                   const SizedBox(height: 100),
                   _buildFooterSection(context),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 80),
                 ],
               ),
             ),
@@ -1159,6 +1169,7 @@ class LandingHomepageScreenState extends State<LandingHomepageScreen> {
                       Expanded(
                         flex: 2,
                         child: _buildFooterColumn(
+                          context: context,
                           title: "NAVIGATION",
                           links: [
                             _FooterLink("FEATURES"),
@@ -1172,10 +1183,11 @@ class LandingHomepageScreenState extends State<LandingHomepageScreen> {
                       Expanded(
                         flex: 2,
                         child: _buildFooterColumn(
+                          context: context,
                           title: "LEGAL",
                           links: [
                             _FooterLink("TERMS OF SERVICE"),
-                            _FooterLink("PRIVACY POLICY", isHighlight: true),
+                            _FooterLink("PRIVACY POLICY"),
                           ],
                         ),
                       ),
@@ -1196,26 +1208,7 @@ class LandingHomepageScreenState extends State<LandingHomepageScreen> {
                               ),
                             ),
                             const SizedBox(height: 20),
-                            Container(
-                              padding: const EdgeInsets.only(bottom: 8),
-                              decoration: const BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(
-                                    color: Color(0xFF334155),
-                                    width: 1,
-                                  ),
-                                ),
-                              ),
-                              child: const Text(
-                                "YOUR EMAIL",
-                                style: TextStyle(
-                                  color: Color(0xFF64748B),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 1.2,
-                                ),
-                              ),
-                            ),
+                            _buildNewsletterEmailInput(),
                           ],
                         ),
                       ),
@@ -1226,98 +1219,100 @@ class LandingHomepageScreenState extends State<LandingHomepageScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Brand
-                      Row(
-                        children: [
-                          Container(
-                            width: 24,
-                            height: 24,
-                            decoration: BoxDecoration(
-                              color: _goldPrimary.withValues(alpha: 0.2),
-                              shape: BoxShape.circle,
+                      Center(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 24,
+                              height: 24,
+                              decoration: BoxDecoration(
+                                color: _goldPrimary.withValues(alpha: 0.2),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.hexagon_rounded,
+                                color: _goldPrimary,
+                                size: 16,
+                              ),
                             ),
-                            child: const Icon(
-                              Icons.hexagon_rounded,
-                              color: _goldPrimary,
-                              size: 16,
+                            const SizedBox(width: 10),
+                            const Text(
+                              "AIDEN CAFE",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 1.5,
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 10),
-                          const Text(
-                            "AIDEN CAFE",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: 1.5,
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 12),
-                      const Text(
-                        "THE DIGITAL MAÎTRE D' FOR THE MODERN CAFE.",
-                        style: TextStyle(
-                          color: Color(0xFF64748B),
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 1.5,
+                      const Center(
+                        child: Text(
+                          "THE DIGITAL MAÎTRE D' FOR THE MODERN CAFE.",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Color(0xFF64748B),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 1.5,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 36),
 
-                      _buildFooterColumn(
-                        title: "NAVIGATION",
-                        links: [
-                          _FooterLink("FEATURES"),
-                          _FooterLink("PRICING"),
-                          _FooterLink("CONTACT"),
-                        ],
+                      Center(
+                        child: _buildFooterColumn(
+                          context: context,
+                          title: "NAVIGATION",
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          textAlign: TextAlign.center,
+                          links: [
+                            _FooterLink("FEATURES"),
+                            _FooterLink("PRICING"),
+                            _FooterLink("CONTACT"),
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 28),
 
-                      _buildFooterColumn(
-                        title: "LEGAL",
-                        links: [
-                          _FooterLink("TERMS OF SERVICE"),
-                          _FooterLink("PRIVACY POLICY", isHighlight: true),
-                        ],
+                      Center(
+                        child: _buildFooterColumn(
+                          context: context,
+                          title: "LEGAL",
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          textAlign: TextAlign.center,
+                          links: [
+                            _FooterLink("TERMS OF SERVICE"),
+                            _FooterLink("PRIVACY POLICY"),
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 28),
 
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            "NEWSLETTER",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 1.5,
-                            ),
+                      const Center(
+                        child: Text(
+                          "NEWSLETTER",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 1.5,
                           ),
-                          const SizedBox(height: 16),
-                          Container(
-                            padding: const EdgeInsets.only(bottom: 8),
-                            decoration: const BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(
-                                  color: Color(0xFF334155),
-                                  width: 1,
-                                ),
-                              ),
-                            ),
-                            child: const Text(
-                              "YOUR EMAIL",
-                              style: TextStyle(
-                                color: Color(0xFF64748B),
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 1.2,
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 200),
+                          child: _buildNewsletterEmailInput(),
+                        ),
                       ),
                     ],
                   );
@@ -1329,18 +1324,22 @@ class LandingHomepageScreenState extends State<LandingHomepageScreen> {
           const SizedBox(height: 60),
 
           // Bottom Bar Copyright
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24.0),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
             child: Align(
               alignment: Alignment.centerLeft,
-              child: Text(
-                "© 2026 AIDENCAFE. ALL RIGHTS RESERVED.",
-                style: TextStyle(
-                  color: Color(0xFF64748B),
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1.5,
-                ),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return const Text(
+                    "© 2026 AIDENCAFE. ALL RIGHTS RESERVED.",
+                    style: TextStyle(
+                      color: Color(0xFF64748B),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1.5,
+                    ),
+                  );
+                },
               ),
             ),
           ),
@@ -1349,15 +1348,91 @@ class LandingHomepageScreenState extends State<LandingHomepageScreen> {
     );
   }
 
+  void _handleFooterNavigation(BuildContext context, String linkTitle) {
+    Widget? destination;
+    switch (linkTitle.toUpperCase()) {
+      case "FEATURES":
+        destination = const FeaturesScreen();
+        break;
+      case "PRICING":
+        destination = const PricingScreen();
+        break;
+      case "CONTACT":
+        destination = const ContentScreen(title: "Contact");
+        break;
+      case "TERMS OF SERVICE":
+        destination = const ContentScreen(title: "Terms of Service");
+        break;
+      case "PRIVACY POLICY":
+        destination = const ContentScreen(title: "Privacy Policy");
+        break;
+    }
+
+    if (destination != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => destination!),
+      );
+    }
+  }
+
+  Widget _buildNewsletterEmailInput({bool isCentered = false}) {
+    return TextField(
+      controller: _newsletterEmailController,
+      keyboardType: TextInputType.emailAddress,
+      textAlign: isCentered ? TextAlign.center : TextAlign.start,
+      style: const TextStyle(
+        color: Colors.white,
+        fontSize: 12,
+        fontWeight: FontWeight.w700,
+        letterSpacing: 1.2,
+      ),
+      cursorColor: _goldPrimary,
+      decoration: const InputDecoration(
+        hintText: "YOUR EMAIL",
+        hintStyle: TextStyle(
+          color: Color(0xFF64748B),
+          fontSize: 12,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 1.2,
+        ),
+        isDense: true,
+        contentPadding: EdgeInsets.only(bottom: 8),
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(
+            color: Color(0xFF334155),
+            width: 1,
+          ),
+        ),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(
+            color: _goldPrimary,
+            width: 1.5,
+          ),
+        ),
+        border: UnderlineInputBorder(
+          borderSide: BorderSide(
+            color: Color(0xFF334155),
+            width: 1,
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildFooterColumn({
+    required BuildContext context,
     required String title,
     required List<_FooterLink> links,
+    CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.start,
+    TextAlign textAlign = TextAlign.start,
   }) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: crossAxisAlignment,
       children: [
         Text(
           title,
+          textAlign: textAlign,
           style: const TextStyle(
             color: Colors.white,
             fontSize: 11,
@@ -1368,15 +1443,17 @@ class LandingHomepageScreenState extends State<LandingHomepageScreen> {
         const SizedBox(height: 16),
         ...links.map((link) => Padding(
               padding: const EdgeInsets.only(bottom: 12.0),
-              child: Text(
-                link.title,
-                style: TextStyle(
-                  color: link.isHighlight
-                      ? _goldPrimary
-                      : const Color(0xFF94A3B8),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1.2,
+              child: InkWell(
+                onTap: () => _handleFooterNavigation(context, link.title),
+                child: Text(
+                  link.title,
+                  textAlign: textAlign,
+                  style: const TextStyle(
+                    color: Color(0xFF94A3B8),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.2,
+                  ),
                 ),
               ),
             )),
@@ -1387,9 +1464,8 @@ class LandingHomepageScreenState extends State<LandingHomepageScreen> {
 
 class _FooterLink {
   final String title;
-  final bool isHighlight;
 
-  _FooterLink(this.title, {this.isHighlight = false});
+  _FooterLink(this.title);
 }
 
 // ==========================================

@@ -206,11 +206,13 @@ class PricingScreen extends StatelessWidget {
                     size: 18,
                   ),
                   const SizedBox(width: 12),
-                  Text(
-                    feat,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.white,
+                  Expanded(
+                    child: Text(
+                      feat,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ],
