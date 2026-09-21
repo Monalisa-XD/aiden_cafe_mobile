@@ -133,7 +133,8 @@ db.serialize(() => {
         category VARCHAR(255) NOT NULL,
         name VARCHAR(255) NOT NULL,
         description TEXT NOT NULL,
-        image VARCHAR(255) NOT NULL
+        image VARCHAR(255) NOT NULL,
+        price DECIMAL(10,2) DEFAULT 50.0
       )
     `
     : `
@@ -143,7 +144,8 @@ db.serialize(() => {
         category TEXT NOT NULL,
         name TEXT NOT NULL,
         description TEXT NOT NULL,
-        image TEXT NOT NULL
+        image TEXT NOT NULL,
+        price REAL DEFAULT 50.0
       )
     `;
 
@@ -176,6 +178,7 @@ db.serialize(() => {
         restaurant_name VARCHAR(255) NOT NULL,
         phone VARCHAR(50) NOT NULL,
         message TEXT,
+        type VARCHAR(50) DEFAULT 'DEMO',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `
@@ -187,6 +190,7 @@ db.serialize(() => {
         restaurant_name TEXT NOT NULL,
         phone TEXT NOT NULL,
         message TEXT,
+        type TEXT DEFAULT 'DEMO',
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `;
@@ -197,12 +201,16 @@ db.serialize(() => {
   });
   db.run(menuTableSql, [], (err) => {
     if (err) console.error('Error creating menu_items table:', err.message);
+    // Ensure price column exists if table was previously created
+    db.run("ALTER TABLE menu_items ADD COLUMN price REAL DEFAULT 50.0", [], () => {});
   });
   db.run(locationsTableSql, [], (err) => {
     if (err) console.error('Error creating locations table:', err.message);
   });
   db.run(demoBookingsTableSql, [], (err) => {
     if (err) console.error('Error creating demo_bookings table:', err.message);
+    // Ensure type column exists if table was previously created
+    db.run("ALTER TABLE demo_bookings ADD COLUMN type TEXT DEFAULT 'DEMO'", [], () => {});
   });
 
   // Seed default data if empty
@@ -243,46 +251,109 @@ db.serialize(() => {
   db.get('SELECT COUNT(*) as count FROM menu_items', [], (err, row) => {
     if (err) return console.error(err.message);
     const count = row ? (row.count !== undefined ? row.count : row['COUNT(*)'] || 0) : 0;
-    if (count === 0) {
+    if (count < 11) {
       const menuItems = [
         {
           badge: 'MENU ITEM',
           category: 'SOUTH INDIAN BREAKFAST',
           name: 'Idli',
-          description: 'Fluffy steamed rice cakes served with sambar and fresh coconut chutney.',
-          image: 'https://images.unsplash.com/photo-1610192244261-3f33de3f55e4?auto=format&fit=crop&w=800&q=80'
+          description: 'Soft and fluffy steamed rice cakes served with aromatic sambar and fresh coconut chutney.',
+          image: 'https://images.unsplash.com/photo-1610192244261-3f33de3f55e4?auto=format&fit=crop&w=800&q=80',
+          price: 60.0
         },
         {
           badge: 'MENU ITEM',
           category: 'SOUTH INDIAN BREAKFAST',
           name: 'Masala Dosa',
-          description: 'Crispy rice crepes filled with spiced potato mash, served with rich chutneys.',
-          image: 'https://images.unsplash.com/photo-1668236543090-82eba5ee5976?auto=format&fit=crop&w=800&q=80'
-        },
-        {
-          badge: 'BEVERAGES',
-          category: 'AUTHENTIC BREW',
-          name: 'Filter Coffee',
-          description: 'Freshly brewed decoction mixed with hot frothed milk, served in a traditional dabara.',
-          image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&q=80'
+          description: 'Crispy golden rice crepe filled with seasoned potato masala, served with coconut and tomato chutneys.',
+          image: 'https://images.unsplash.com/photo-1668236543090-82eba5ee5976?auto=format&fit=crop&w=800&q=80',
+          price: 80.0
         },
         {
           badge: 'MENU ITEM',
           category: 'SOUTH INDIAN BREAKFAST',
           name: 'Medu Vada',
-          description: 'Crispy golden fried lentil donuts seasoned with pepper, curry leaves, and cumin.',
-          image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=800&q=80'
+          description: 'Crisp and golden-fried lentil donuts seasoned with black pepper, curry leaves, and cumin.',
+          image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=800&q=80',
+          price: 50.0
+        },
+        {
+          badge: 'SPECIAL',
+          category: 'SOUTH INDIAN BREAKFAST',
+          name: 'Rava Idli',
+          description: 'Steamed semolina cakes tempered with mustard, cashews, and coriander, served with ghee.',
+          image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&q=80',
+          price: 70.0
+        },
+        {
+          badge: 'MENU ITEM',
+          category: 'BHATHS',
+          name: 'Khara Bhath',
+          description: 'Savory semolina porridge cooked with mixed vegetables, ghee, and local spices.',
+          image: 'https://images.unsplash.com/photo-1601050690597-df056fb4ce78?auto=format&fit=crop&w=800&q=80',
+          price: 55.0
+        },
+        {
+          badge: 'BESTSELLER',
+          category: 'BHATHS',
+          name: 'Chow Chow Bhath',
+          description: 'A classic combination of equal portions of savory Khara Bhath and sweet Kesari Bhath.',
+          image: 'https://images.unsplash.com/photo-1601050690597-df056fb4ce78?auto=format&fit=crop&w=800&q=80',
+          price: 90.0
+        },
+        {
+          badge: 'TRADITIONAL',
+          category: 'BHATHS',
+          name: 'Bisi Bele Bhath',
+          description: 'A wholesome spicy rice dish cooked with lentils, mixed vegetables, tamarind, and local spices.',
+          image: 'https://images.unsplash.com/photo-1601050690597-df056fb4ce78?auto=format&fit=crop&w=800&q=80',
+          price: 85.0
+        },
+        {
+          badge: 'DESSERT',
+          category: 'SWEETS',
+          name: 'Kesari Bhath',
+          description: 'Sweet saffron-infused semolina pudding loaded with dry fruits and roasted cashews.',
+          image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=800&q=80',
+          price: 50.0
+        },
+        {
+          badge: 'SIGNATURE',
+          category: 'SWEETS',
+          name: 'Mysore Pak',
+          description: 'A rich, melt-in-the-mouth traditional sweet made of gram flour, generous ghee, and sugar.',
+          image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=800&q=80',
+          price: 75.0
+        },
+        {
+          badge: 'AUTHENTIC BREW',
+          category: 'BEVERAGES',
+          name: 'Filter Coffee',
+          description: 'Freshly brewed decoction mixed with hot frothed milk, served in a traditional dabara.',
+          image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&q=80',
+          price: 40.0
+        },
+        {
+          badge: 'BEVERAGES',
+          category: 'BEVERAGES',
+          name: 'Badam Milk',
+          description: 'Warm, creamy milk flavored with almond paste, saffron, cardamom, and sliced nuts.',
+          image: 'https://images.unsplash.com/photo-154432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&q=80',
+          price: 50.0
         }
       ];
 
-      const stmt = db.prepare('INSERT INTO menu_items (badge, category, name, description, image) VALUES (?, ?, ?, ?, ?)');
-      menuItems.forEach((item) => {
-        stmt.run(item.badge, item.category, item.name, item.description, item.image, (err) => {
-          if (err) console.error('Error seeding menu item:', err.message);
+      // Clean existing if partial, or only insert if missing
+      db.run('DELETE FROM menu_items', [], () => {
+        const stmt = db.prepare('INSERT INTO menu_items (badge, category, name, description, image, price) VALUES (?, ?, ?, ?, ?, ?)');
+        menuItems.forEach((item) => {
+          stmt.run(item.badge, item.category, item.name, item.description, item.image, item.price, (err) => {
+            if (err) console.error('Error seeding menu item:', err.message);
+          });
         });
+        stmt.finalize();
+        console.log('Seeded all 11 default menu items.');
       });
-      stmt.finalize();
-      console.log('Seeded default menu items.');
     }
   });
 

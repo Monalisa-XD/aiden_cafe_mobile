@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/app_state_provider.dart';
+import '../../providers/cart_provider.dart';
 import '../../widgets/shared/footer.dart';
 import '../../services/api_service.dart';
+import '../../models/menu_item.dart';
+import '../../models/cafe_location.dart';
 import '../auth/login_screen.dart';
-
-final ValueNotifier<List<Map<String, dynamic>>> cartNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
 
 class SouthKitchenScreen extends StatefulWidget {
   const SouthKitchenScreen({super.key});
@@ -22,8 +23,8 @@ class _SouthKitchenScreenState extends State<SouthKitchenScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final GlobalKey _locationsSectionKey = GlobalKey();
 
-  List<Map<String, String>> _menuItems = [];
-  List<Map<String, String>> _locations = [];
+  List<MenuItem> _menuItems = [];
+  List<CafeLocation> _locations = [];
   bool _showCart = false;
 
   int _currentHeroSlide = 0;
@@ -64,14 +65,16 @@ class _SouthKitchenScreenState extends State<SouthKitchenScreen> {
   }
 
   Future<void> _loadData() async {
-    final menu = await ApiService.getMenuItems();
-    final locs = await ApiService.getLocations();
-    if (mounted) {
-      setState(() {
-        _menuItems = menu;
-        _locations = locs;
-      });
-    }
+    try {
+      final menu = await ApiService.getMenuItems();
+      final locs = await ApiService.getLocations();
+      if (mounted) {
+        setState(() {
+          _menuItems = menu;
+          _locations = locs;
+        });
+      }
+    } catch (_) {}
   }
 
   @override
@@ -437,19 +440,53 @@ class _SouthKitchenScreenState extends State<SouthKitchenScreen> {
                   ),
                 ),
                 const SizedBox(width: 16),
-                IconButton(
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  onPressed: () {
-                    setState(() {
-                      _showCart = !_showCart;
-                    });
+                Consumer<CartProvider>(
+                  builder: (context, cart, child) {
+                    return Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        IconButton(
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                          onPressed: () {
+                            setState(() {
+                              _showCart = !_showCart;
+                            });
+                          },
+                          icon: Icon(
+                            _showCart ? Icons.close : Icons.shopping_bag_outlined,
+                            color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
+                            size: 22,
+                          ),
+                        ),
+                        if (cart.totalCount > 0)
+                          Positioned(
+                            top: -4,
+                            right: -6,
+                            child: Container(
+                              padding: const EdgeInsets.all(3),
+                              decoration: const BoxDecoration(
+                                color: _goldPrimary,
+                                shape: BoxShape.circle,
+                              ),
+                              constraints: const BoxConstraints(
+                                minWidth: 16,
+                                minHeight: 16,
+                              ),
+                              child: Text(
+                                "${cart.totalCount}",
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    );
                   },
-                  icon: Icon(
-                    Icons.shopping_bag_outlined,
-                    color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
-                    size: 22,
-                  ),
                 ),
                 const SizedBox(width: 16),
                 IconButton(
@@ -940,38 +977,9 @@ class _SouthKitchenScreenState extends State<SouthKitchenScreen> {
   Widget _buildIconsSection(bool isDesktop) {
     final horizontalPadding = isDesktop ? 64.0 : 24.0;
     
-    final List<Map<String, String>> menuItems = _menuItems.isNotEmpty 
+    final List<MenuItem> menuItems = _menuItems.isNotEmpty 
         ? _menuItems 
-        : [
-            {
-              "badge": "MENU ITEM",
-              "category": "SOUTH INDIAN BREAKFAST",
-              "name": "Idli",
-              "description": "Fluffy steamed rice cakes served with sambar and fresh coconut chutney.",
-              "image": "https://images.unsplash.com/photo-1610192244261-3f33de3f55e4?auto=format&fit=crop&w=800&q=80"
-            },
-            {
-              "badge": "MENU ITEM",
-              "category": "SOUTH INDIAN BREAKFAST",
-              "name": "Masala Dosa",
-              "description": "Crispy rice crepes filled with spiced potato mash, served with rich chutneys.",
-              "image": "https://images.unsplash.com/photo-1668236543090-82eba5ee5976?auto=format&fit=crop&w=800&q=80"
-            },
-            {
-              "badge": "BEVERAGES",
-              "category": "AUTHENTIC BREW",
-              "name": "Filter Coffee",
-              "description": "Freshly brewed decoction mixed with hot frothed milk, served in a traditional dabara.",
-              "image": "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&q=80"
-            },
-            {
-              "badge": "MENU ITEM",
-              "category": "SOUTH INDIAN BREAKFAST",
-              "name": "Medu Vada",
-              "description": "Crispy golden fried lentil donuts seasoned with pepper, curry leaves, and cumin.",
-              "image": "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=800&q=80"
-            }
-          ];
+        : _staticMenuItems;
 
     return Container(
       width: double.infinity,
@@ -1138,7 +1146,7 @@ class _SouthKitchenScreenState extends State<SouthKitchenScreen> {
   }
 
   // --- MENU ITEM CARD ---
-  Widget _buildMenuItemCard(Map<String, String> item, bool isDesktop) {
+  Widget _buildMenuItemCard(MenuItem item, bool isDesktop) {
     final double cardWidth = isDesktop ? 320.0 : 280.0;
     
     return Container(
@@ -1163,7 +1171,7 @@ class _SouthKitchenScreenState extends State<SouthKitchenScreen> {
                 children: [
                   Positioned.fill(
                     child: Image.network(
-                      item["image"] ?? "",
+                      item.image,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
@@ -1179,7 +1187,7 @@ class _SouthKitchenScreenState extends State<SouthKitchenScreen> {
                           ),
                           child: Center(
                             child: Icon(
-                              item["name"] == "Filter Coffee" 
+                              item.name == "Filter Coffee" 
                                   ? Icons.local_cafe_outlined 
                                   : Icons.restaurant_menu_outlined,
                               color: Colors.white.withValues(alpha: 0.15),
@@ -1205,7 +1213,7 @@ class _SouthKitchenScreenState extends State<SouthKitchenScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        item["badge"] ?? "MENU ITEM",
+                        item.badge.isNotEmpty ? item.badge : "MENU ITEM",
                         style: const TextStyle(
                           color: Color(0xFF070A0F),
                           fontSize: 10,
@@ -1233,7 +1241,7 @@ class _SouthKitchenScreenState extends State<SouthKitchenScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          item["category"] ?? "SOUTH INDIAN BREAKFAST",
+                          item.category.isNotEmpty ? item.category : "SOUTH INDIAN BREAKFAST",
                           style: const TextStyle(
                             color: _goldPrimary,
                             fontSize: 10,
@@ -1243,7 +1251,7 @@ class _SouthKitchenScreenState extends State<SouthKitchenScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          item["name"] ?? "",
+                          item.name,
                           style: const TextStyle(
                             fontFamily: 'serif',
                             color: Colors.white,
@@ -1253,15 +1261,32 @@ class _SouthKitchenScreenState extends State<SouthKitchenScreen> {
                         ),
                       ],
                     ),
-                    Text(
-                      item["description"] ?? "",
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Color(0xFF94A3B8),
-                        fontSize: 12,
-                        height: 1.5,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            item.description,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Color(0xFF94A3B8),
+                              fontSize: 12,
+                              height: 1.5,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          "₹${item.price.toStringAsFixed(0)}",
+                          style: const TextStyle(
+                            color: _goldPrimary,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -1479,30 +1504,9 @@ class _SouthKitchenScreenState extends State<SouthKitchenScreen> {
   Widget _buildLocationsSection(bool isDesktop) {
     final horizontalPadding = isDesktop ? 64.0 : 24.0;
     
-    final List<Map<String, String>> locations = _locations.isNotEmpty 
+    final List<CafeLocation> locations = _locations.isNotEmpty 
         ? _locations 
-        : [
-            {
-              "name": "Basvanagudi",
-              "address": "South Kitchen, 1st Main Road, Thyagaraja Nagar, N.R Colony, Bengaluru West City Corporation, Bengaluru, Bangalore North, Bengaluru Urban, Karnataka, 560004, India",
-              "image": "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=800&q=80"
-            },
-            {
-              "name": "Jayanagar",
-              "address": "South Kitchen, 4th Block, Near Jayanagar Metro Station, Jayanagar, Bengaluru, Karnataka, 560011, India",
-              "image": "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&q=80"
-            },
-            {
-              "name": "Indiranagar",
-              "address": "South Kitchen, 100 Feet Road, HAL 2nd Stage, Indiranagar, Bengaluru, Karnataka, 560038, India",
-              "image": "https://images.unsplash.com/photo-1610192244261-3f33de3f55e4?auto=format&fit=crop&w=800&q=80"
-            },
-            {
-              "name": "Malleshwaram",
-              "address": "South Kitchen, Margosa Road, Near 15th Cross, Malleshwaram, Bengaluru, Karnataka, 560003, India",
-              "image": "https://images.unsplash.com/photo-1668236543090-82eba5ee5976?auto=format&fit=crop&w=800&q=80"
-            }
-          ];
+        : _staticLocations;
 
     return Container(
       key: _locationsSectionKey,
@@ -1571,7 +1575,7 @@ class _SouthKitchenScreenState extends State<SouthKitchenScreen> {
   }
 
   // --- LOCATION CARD WIDGET ---
-  Widget _buildLocationCard(Map<String, String> location) {
+  Widget _buildLocationCard(CafeLocation location) {
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFF0B0E14),
@@ -1586,7 +1590,7 @@ class _SouthKitchenScreenState extends State<SouthKitchenScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image Area (Commented out network image with premium fallback representation)
+            // Image Area
             SizedBox(
               height: 200,
               width: double.infinity,
@@ -1594,7 +1598,7 @@ class _SouthKitchenScreenState extends State<SouthKitchenScreen> {
                 children: [
                   Positioned.fill(
                     child: Image.network(
-                      location["image"] ?? "",
+                      location.image,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
@@ -1630,7 +1634,7 @@ class _SouthKitchenScreenState extends State<SouthKitchenScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    location["name"] ?? "",
+                    location.name,
                     style: const TextStyle(
                       fontFamily: 'serif',
                       color: Colors.white,
@@ -1640,7 +1644,7 @@ class _SouthKitchenScreenState extends State<SouthKitchenScreen> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    location["address"] ?? "",
+                    location.address,
                     style: const TextStyle(
                       color: Color(0xFF94A3B8),
                       fontSize: 13,
@@ -2377,7 +2381,7 @@ class _SouthKitchenDrawerState extends State<SouthKitchenDrawer> {
                                 const Icon(Icons.logout, color: Colors.white, size: 18),
                                 const SizedBox(width: 8),
                                 Text(
-                                  "LOGOUT (${auth.user?['name'] ?? ''})",
+                                  "LOGOUT (${auth.user?.name ?? ''})",
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 12,
@@ -2461,8 +2465,45 @@ class _SouthKitchenDrawerState extends State<SouthKitchenDrawer> {
   }
 }
 
-class LocationsScreen extends StatelessWidget {
+class LocationsScreen extends StatefulWidget {
   const LocationsScreen({super.key});
+
+  @override
+  State<LocationsScreen> createState() => _LocationsScreenState();
+}
+
+class _LocationsScreenState extends State<LocationsScreen> {
+  static const Color _goldPrimary = Color(0xFFD4A034);
+  List<CafeLocation> _locations = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLocations();
+  }
+
+  Future<void> _loadLocations() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final locs = await ApiService.getLocations();
+      if (mounted) {
+        setState(() {
+          _locations = locs.isNotEmpty ? locs : _staticLocations;
+          _isLoading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _locations = _staticLocations;
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -2471,37 +2512,161 @@ class LocationsScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: const Color(0xFF0B0E14),
         elevation: 0,
-        title: const Text("LOCATIONS", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+        title: const Text(
+          "LOCATIONS",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
+          ),
+        ),
         leading: Builder(
           builder: (context) => IconButton(
             icon: const Icon(Icons.menu, color: Colors.white),
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh, color: _goldPrimary),
+            onPressed: _loadLocations,
+          ),
+        ],
       ),
       drawer: const SouthKitchenDrawer(activeItem: "LOCATIONS"),
-      body: const Center(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.location_on_outlined, color: Color(0xFFD4A034), size: 64),
-              SizedBox(height: 24),
-              Text(
-                "Our Locations",
-                style: TextStyle(fontFamily: 'serif', color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold),
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(color: _goldPrimary),
+            )
+          : RefreshIndicator(
+              color: _goldPrimary,
+              backgroundColor: const Color(0xFF161C24),
+              onRefresh: _loadLocations,
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                children: [
+                  const Text(
+                    "AUTHENTIC SOUTH INDIAN DESTINATIONS",
+                    style: TextStyle(
+                      color: _goldPrimary,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    "Visit Any Of Our Outlets",
+                    style: TextStyle(
+                      fontFamily: 'serif',
+                      color: Colors.white,
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    "Experience timeless recipes, freshly prepared dosas, and artisanal filter coffee served hot with genuine South Indian warmth.",
+                    style: TextStyle(color: Color(0xFF94A3B8), fontSize: 13, height: 1.5),
+                  ),
+                  const SizedBox(height: 24),
+                  ..._locations.map((loc) => Container(
+                        margin: const EdgeInsets.only(bottom: 20),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0B0E14),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.08),
+                            width: 1,
+                          ),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                height: 160,
+                                width: double.infinity,
+                                child: Image.network(
+                                  loc.image,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) => Container(
+                                    color: const Color(0xFF1A2130),
+                                    child: const Center(
+                                      child: Icon(
+                                        Icons.storefront_outlined,
+                                        color: Colors.white24,
+                                        size: 48,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(20),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.location_on,
+                                          color: _goldPrimary,
+                                          size: 18,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            loc.name,
+                                            style: const TextStyle(
+                                              fontFamily: 'serif',
+                                              color: Colors.white,
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Text(
+                                      loc.address,
+                                      style: const TextStyle(
+                                        color: Color(0xFF94A3B8),
+                                        fontSize: 13,
+                                        height: 1.5,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.access_time_rounded,
+                                          color: _goldPrimary,
+                                          size: 15,
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          "Open 7:00 AM – 10:00 PM",
+                                          style: TextStyle(
+                                            color: Colors.white.withValues(alpha: 0.8),
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )),
+                ],
               ),
-              SizedBox(height: 16),
-              Text(
-                "Visit any of our restaurants in Basavanagudi, Jayanagar, Indiranagar, or Malleshwaram for the authentic taste of South Indian recipes.",
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Color(0xFF94A3B8), fontSize: 14, height: 1.6),
-              ),
-            ],
-          ),
-        ),
-      ),
+            ),
     );
   }
 }
@@ -2638,114 +2803,145 @@ class DeliveryLocationScreen extends StatelessWidget {
   }
 }
 
-class MenuItemData {
-  final String id;
-  final String category;
-  final String name;
-  final String description;
-  final String image;
-  final double price;
-  final bool isVeg;
-
-  const MenuItemData({
-    required this.id,
-    required this.category,
-    required this.name,
-    required this.description,
-    required this.image,
-    required this.price,
-    this.isVeg = true,
-  });
-}
-
-const List<MenuItemData> _staticMenuItems = [
-  MenuItemData(
+const List<CafeLocation> _staticLocations = [
+  CafeLocation(
     id: '1',
+    name: 'Basvanagudi',
+    address: 'South Kitchen, 1st Main Road, Thyagaraja Nagar, N.R Colony, Bengaluru West City Corporation, Bengaluru, Bangalore North, Bengaluru Urban, Karnataka, 560004, India',
+    image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=800&q=80',
+  ),
+  CafeLocation(
+    id: '2',
+    name: 'Jayanagar',
+    address: 'South Kitchen, 4th Block, Near Jayanagar Metro Station, Jayanagar, Bengaluru, Karnataka, 560011, India',
+    image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&q=80',
+  ),
+  CafeLocation(
+    id: '3',
+    name: 'Indiranagar',
+    address: 'South Kitchen, 100 Feet Road, HAL 2nd Stage, Indiranagar, Bengaluru, Karnataka, 560038, India',
+    image: 'https://images.unsplash.com/photo-1610192244261-3f33de3f55e4?auto=format&fit=crop&w=800&q=80',
+  ),
+  CafeLocation(
+    id: '4',
+    name: 'Malleshwaram',
+    address: 'South Kitchen, Margosa Road, Near 15th Cross, Malleshwaram, Bengaluru, Karnataka, 560003, India',
+    image: 'https://images.unsplash.com/photo-1668236543090-82eba5ee5976?auto=format&fit=crop&w=800&q=80',
+  ),
+];
+
+typedef MenuItemData = MenuItem;
+
+const List<MenuItem> _staticMenuItems = [
+  MenuItem(
+    id: '1',
+    badge: 'MENU ITEM',
     category: 'SOUTH INDIAN BREAKFAST',
     name: 'Idli',
     description: 'Soft and fluffy steamed rice cakes served with aromatic sambar and fresh coconut chutney.',
     image: 'https://images.unsplash.com/photo-1610192244261-3f33de3f55e4?auto=format&fit=crop&w=800&q=80',
     price: 60.0,
+    isVeg: true,
   ),
-  MenuItemData(
+  MenuItem(
     id: '2',
+    badge: 'MENU ITEM',
     category: 'SOUTH INDIAN BREAKFAST',
     name: 'Masala Dosa',
     description: 'Crispy golden rice crepe filled with seasoned potato masala, served with coconut and tomato chutneys.',
     image: 'https://images.unsplash.com/photo-1668236543090-82eba5ee5976?auto=format&fit=crop&w=800&q=80',
     price: 80.0,
+    isVeg: true,
   ),
-  MenuItemData(
+  MenuItem(
     id: '3',
+    badge: 'MENU ITEM',
     category: 'SOUTH INDIAN BREAKFAST',
     name: 'Medu Vada',
     description: 'Crisp and golden-fried lentil donuts seasoned with black pepper, curry leaves, and cumin.',
     image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=800&q=80',
     price: 50.0,
+    isVeg: true,
   ),
-  MenuItemData(
+  MenuItem(
     id: '4',
+    badge: 'MENU ITEM',
     category: 'SOUTH INDIAN BREAKFAST',
     name: 'Rava Idli',
     description: 'Steamed semolina cakes tempered with mustard, cashews, and coriander, served with ghee.',
     image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&q=80',
     price: 70.0,
+    isVeg: true,
   ),
-  MenuItemData(
+  MenuItem(
     id: '5',
+    badge: 'MENU ITEM',
     category: 'BHATHS',
     name: 'Khara Bhath',
     description: 'Savory semolina porridge cooked with mixed vegetables, ghee, and local spices.',
     image: 'https://images.unsplash.com/photo-1601050690597-df056fb4ce78?auto=format&fit=crop&w=800&q=80',
     price: 55.0,
+    isVeg: true,
   ),
-  MenuItemData(
+  MenuItem(
     id: '6',
+    badge: 'MENU ITEM',
     category: 'BHATHS',
     name: 'Chow Chow Bhath',
     description: 'A classic combination of equal portions of savory Khara Bhath and sweet Kesari Bhath.',
     image: 'https://images.unsplash.com/photo-1601050690597-df056fb4ce78?auto=format&fit=crop&w=800&q=80',
     price: 90.0,
+    isVeg: true,
   ),
-  MenuItemData(
+  MenuItem(
     id: '7',
+    badge: 'MENU ITEM',
     category: 'BHATHS',
     name: 'Bisi Bele Bhath',
     description: 'A wholesome spicy rice dish cooked with lentils, mixed vegetables, tamarind, and local spices.',
     image: 'https://images.unsplash.com/photo-1601050690597-df056fb4ce78?auto=format&fit=crop&w=800&q=80',
     price: 85.0,
+    isVeg: true,
   ),
-  MenuItemData(
+  MenuItem(
     id: '8',
+    badge: 'MENU ITEM',
     category: 'SWEETS',
     name: 'Kesari Bhath',
     description: 'Sweet saffron-infused semolina pudding loaded with dry fruits and roasted cashews.',
     image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=800&q=80',
     price: 50.0,
+    isVeg: true,
   ),
-  MenuItemData(
+  MenuItem(
     id: '9',
+    badge: 'MENU ITEM',
     category: 'SWEETS',
     name: 'Mysore Pak',
     description: 'A rich, melt-in-the-mouth traditional sweet made of gram flour, generous ghee, and sugar.',
     image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=800&q=80',
     price: 75.0,
+    isVeg: true,
   ),
-  MenuItemData(
+  MenuItem(
     id: '10',
+    badge: 'BEVERAGES',
     category: 'BEVERAGES',
     name: 'Filter Coffee',
     description: 'Aromatic chicory blend coffee brewed traditionally and frothed with hot milk.',
     image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&q=80',
     price: 40.0,
+    isVeg: true,
   ),
-  MenuItemData(
+  MenuItem(
     id: '11',
+    badge: 'BEVERAGES',
     category: 'BEVERAGES',
     name: 'Badam Milk',
     description: 'Warm, creamy milk flavored with almond paste, saffron, cardamom, and sliced nuts.',
     image: 'https://images.unsplash.com/photo-154432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&q=80',
     price: 50.0,
+    isVeg: true,
   ),
 ];
 
@@ -2777,18 +2973,7 @@ class _MenusScreenState extends State<MenusScreen> {
       final data = await ApiService.getMenuItems();
       if (mounted) {
         setState(() {
-          _menuItems = data.map((item) => MenuItemData(
-                id: item['id'] ?? '',
-                category: item['category'] ?? '',
-                name: item['name'] ?? '',
-                description: item['description'] ?? '',
-                image: item['image'] ?? '',
-                price: 50.0,
-                isVeg: true,
-              )).toList();
-          if (_menuItems.isEmpty) {
-            _menuItems = _staticMenuItems;
-          }
+          _menuItems = data.isNotEmpty ? data : _staticMenuItems;
           _isLoading = false;
         });
       }
@@ -2811,20 +2996,7 @@ class _MenusScreenState extends State<MenusScreen> {
   ];
 
   void _addToCart(MenuItemData item) {
-    final currentCart = List<Map<String, dynamic>>.from(cartNotifier.value);
-    final index = currentCart.indexWhere((cartItem) => cartItem['id'] == item.id);
-    if (index >= 0) {
-      currentCart[index]['quantity'] += 1;
-    } else {
-      currentCart.add({
-        'id': item.id,
-        'name': item.name,
-        'price': item.price,
-        'image': item.image,
-        'quantity': 1,
-      });
-    }
-    cartNotifier.value = currentCart;
+    context.read<CartProvider>().addItem(item);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text("${item.name} added to cart!"),
@@ -3185,10 +3357,9 @@ class _MenusScreenState extends State<MenusScreen> {
             },
             icon: const Icon(Icons.wb_sunny_outlined, color: Colors.white),
           ),
-          ValueListenableBuilder<List<Map<String, dynamic>>>(
-            valueListenable: cartNotifier,
-            builder: (context, cartItems, child) {
-              final count = cartItems.fold<int>(0, (sum, item) => sum + (item['quantity'] as int));
+          Consumer<CartProvider>(
+            builder: (context, cart, child) {
+              final count = cart.totalCount;
               return Stack(
                 alignment: Alignment.center,
                 children: [
@@ -3213,8 +3384,13 @@ class _MenusScreenState extends State<MenusScreen> {
                           color: _goldPrimary,
                           shape: BoxShape.circle,
                         ),
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
                         child: Text(
                           "$count",
+                          textAlign: TextAlign.center,
                           style: const TextStyle(color: Colors.black, fontSize: 8, fontWeight: FontWeight.bold),
                         ),
                       ),
@@ -3384,10 +3560,9 @@ class RealCartView extends StatelessWidget {
   Widget build(BuildContext context) {
     const Color goldPrimary = Color(0xFFD4A034);
 
-    return ValueListenableBuilder<List<Map<String, dynamic>>>(
-      valueListenable: cartNotifier,
-      builder: (context, cartItems, child) {
-        if (cartItems.isEmpty) {
+    return Consumer<CartProvider>(
+      builder: (context, cart, child) {
+        if (cart.isEmpty) {
           return Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
@@ -3422,16 +3597,16 @@ class RealCartView extends StatelessWidget {
           );
         }
 
-        final double total = cartItems.fold<double>(0, (sum, item) => sum + (item['price'] as double) * (item['quantity'] as int));
+        final items = cart.items;
 
         return Column(
           children: [
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.all(24),
-                itemCount: cartItems.length,
+                itemCount: items.length,
                 itemBuilder: (context, index) {
-                  final item = cartItems[index];
+                  final item = items[index];
                   return Container(
                     margin: const EdgeInsets.only(bottom: 16),
                     padding: const EdgeInsets.all(12),
@@ -3448,7 +3623,7 @@ class RealCartView extends StatelessWidget {
                             width: 64,
                             height: 64,
                             child: Image.network(
-                              item['image'] ?? "",
+                              item.image,
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) => Container(color: const Color(0xFF1A2130)),
                             ),
@@ -3460,7 +3635,7 @@ class RealCartView extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                item['name'] ?? "",
+                                item.name,
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
@@ -3469,7 +3644,7 @@ class RealCartView extends StatelessWidget {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                "₹${(item['price'] as double).toInt()}",
+                                "₹${item.price.toInt()}",
                                 style: const TextStyle(color: goldPrimary, fontSize: 14, fontWeight: FontWeight.bold),
                               ),
                             ],
@@ -3479,25 +3654,17 @@ class RealCartView extends StatelessWidget {
                           children: [
                             IconButton(
                               onPressed: () {
-                                final currentCart = List<Map<String, dynamic>>.from(cartNotifier.value);
-                                if (currentCart[index]['quantity'] > 1) {
-                                  currentCart[index]['quantity'] -= 1;
-                                } else {
-                                  currentCart.removeAt(index);
-                                }
-                                cartNotifier.value = currentCart;
+                                cart.decreaseQuantity(item.id);
                               },
                               icon: const Icon(Icons.remove_circle_outline, color: goldPrimary, size: 22),
                             ),
                             Text(
-                              "${item['quantity']}",
+                              "${item.quantity}",
                               style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                             ),
                             IconButton(
                               onPressed: () {
-                                final currentCart = List<Map<String, dynamic>>.from(cartNotifier.value);
-                                currentCart[index]['quantity'] += 1;
-                                cartNotifier.value = currentCart;
+                                cart.increaseQuantity(item.id);
                               },
                               icon: const Icon(Icons.add_circle_outline, color: goldPrimary, size: 22),
                             ),
@@ -3521,7 +3688,7 @@ class RealCartView extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text("Total Amount", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-                      Text("₹${total.toInt()}", style: const TextStyle(color: goldPrimary, fontSize: 20, fontWeight: FontWeight.bold)),
+                      Text("₹${cart.total.toInt()}", style: const TextStyle(color: goldPrimary, fontSize: 20, fontWeight: FontWeight.bold)),
                     ],
                   ),
                   const SizedBox(height: 20),
@@ -3529,10 +3696,52 @@ class RealCartView extends StatelessWidget {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Order placed successfully!")),
+                        showDialog(
+                          context: context,
+                          builder: (dialogCtx) => AlertDialog(
+                            backgroundColor: const Color(0xFF0F141C),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              side: const BorderSide(color: Color(0xFF161C28), width: 1),
+                            ),
+                            title: const Row(
+                              children: [
+                                Icon(Icons.info_outline, color: goldPrimary, size: 22),
+                                SizedBox(width: 8),
+                                Text(
+                                  "Demo Checkout",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            content: const Text(
+                              "Thank you for exploring South Kitchen! Online ordering is currently in demo mode.\n\nTo place actual orders, please visit any of our 4 Bengaluru outlets or contact our takeaway counter directly.",
+                              style: TextStyle(color: Color(0xFF94A3B8), fontSize: 14, height: 1.5),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(dialogCtx);
+                                  cart.clear();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text("Demo checkout complete. Cart cleared."),
+                                      duration: Duration(seconds: 2),
+                                    ),
+                                  );
+                                },
+                                child: const Text(
+                                  "CLEAR CART & CLOSE",
+                                  style: TextStyle(color: goldPrimary, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ],
+                          ),
                         );
-                        cartNotifier.value = [];
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: goldPrimary,

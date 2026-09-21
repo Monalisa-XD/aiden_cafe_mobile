@@ -1,21 +1,26 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter_test/flutter_test.dart';
-
+import 'package:provider/provider.dart';
 import 'package:aiden_cafe_mobile/main.dart';
+import 'package:aiden_cafe_mobile/providers/app_state_provider.dart';
+import 'package:aiden_cafe_mobile/providers/cart_provider.dart';
+import 'package:aiden_cafe_mobile/providers/auth_provider.dart';
+import 'package:aiden_cafe_mobile/screens/main_navigation_screen.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const AidenCafeApp());
+  testWidgets('App launches and displays MainNavigationScreen with providers', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => AppStateProvider()),
+          ChangeNotifierProvider(create: (_) => CartProvider()),
+          ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ],
+        child: const AidenCafeApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
 
-    // Verify that our login screen is shown.
-    expect(find.text('AIDEN CAFE'), findsOneWidget);
-    expect(find.text('Welcome Back'), findsOneWidget);
+    expect(find.byType(MainNavigationScreen), findsOneWidget);
+    expect(find.text('AIDEN CAFE'), findsWidgets);
   });
 }

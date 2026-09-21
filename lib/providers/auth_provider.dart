@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import '../models/user.dart';
+import '../services/api_service.dart';
 
 class AuthProvider extends ChangeNotifier {
   bool _isAuthenticated = false;
   String? _token;
-  Map<String, dynamic>? _user;
+  User? _user;
   bool _isLoading = true;
 
   bool get isAuthenticated => _isAuthenticated;
   String? get token => _token;
-  Map<String, dynamic>? get user => _user;
+  User? get user => _user;
+  Map<String, dynamic>? get userMap => _user?.toJson();
   bool get isLoading => _isLoading;
 
   AuthProvider() {
+    ApiService.onUnauthorized = logout;
     _loadUser();
   }
 
@@ -25,7 +29,7 @@ class AuthProvider extends ChangeNotifier {
 
       if (token != null && userStr != null) {
         _token = token;
-        _user = json.decode(userStr);
+        _user = User.fromJson(json.decode(userStr) as Map<String, dynamic>);
         _isAuthenticated = true;
       }
     } catch (e) {
@@ -36,14 +40,16 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> login(String token, Map<String, dynamic> user) async {
+  Future<void> login(String token, dynamic user) async {
     try {
       final prefs = await SharedPreferences.getInstance();
+      final User userObj = user is User ? user : User.fromJson(user as Map<String, dynamic>);
+
       await prefs.setString('auth_token', token);
-      await prefs.setString('auth_user', json.encode(user));
+      await prefs.setString('auth_user', json.encode(userObj.toJson()));
 
       _token = token;
-      _user = user;
+      _user = userObj;
       _isAuthenticated = true;
       notifyListeners();
     } catch (e) {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'landing_homepage_screen.dart';
-import 'auth/login_screen.dart';
+import 'account/account_screen.dart';
 import 'features_screen.dart';
 import 'pricing_screen.dart';
 import 'demo_booking_screen.dart';
@@ -20,7 +20,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     const FeaturesScreen(),
     const PricingScreen(),
     const DemoBookingScreen(),
-    const LoginScreen(), // Account / Sign In
+    const AccountScreen(), // Account / Sign In / Dashboard
   ];
 
   @override
